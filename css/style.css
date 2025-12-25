@@ -1,15 +1,17 @@
 :root {
-    --primary-color: #2c3e50;
-    --secondary-color: #e74c3c;
-    --accent-color: #3498db;
-    --light-color: #ecf0f1;
-    --dark-color: #2c3e50;
-    --text-color: #333;
-    --text-light: #7f8c8d;
-    --white: #ffffff;
+    --primary-color: #1e5f4b; /* Deep Islamic green */
+    --secondary-color: #d4af37; /* Gold */
+    --accent-color: #1e5f4b; /* Deep Islamic green */
+    --light-color: #f5f5f5; /* Off-white */
+    --dark-color: #0c2b22; /* Dark green */
+    --text-color: #333333; /* Dark gray for text */
+    --text-light: #5d6d63; /* Muted green-gray */
+    --white: #ffffff; /* Pure white */
     --transition: all 0.3s ease;
     --box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     --border-radius: 8px;
+    --gold-light: #f0d9a0; /* Light gold for accents */
+    --green-light: #e8f3ee; /* Light green for backgrounds */
 }
 
 /* Base Styles */
@@ -29,6 +31,7 @@ body {
     color: var(--text-color);
     background-color: var(--white);
     overflow-x: hidden;
+    background-color: var(--green-light);
 }
 
 .container {
@@ -74,8 +77,8 @@ img {
 /* Buttons */
 .btn {
     display: inline-block;
-    background: var(--accent-color);
-    color: var(--white);
+    background: var(--secondary-color);
+    color: var(--dark-color);
     padding: 12px 30px;
     border-radius: 50px;
     font-weight: 600;
@@ -85,6 +88,29 @@ img {
     border: none;
     cursor: pointer;
     text-align: center;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: var(--primary-color);
+    transition: var(--transition);
+    z-index: -1;
+}
+
+.btn:hover {
+    color: var(--white);
+}
+
+.btn:hover::before {
+    left: 0;
 }
 
 .btn:hover {
@@ -100,7 +126,7 @@ header {
     left: 0;
     width: 100%;
     z-index: 1000;
-    background-color: rgba(255, 255, 255, 0.95);
+    background-color: var(--primary-color);
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     transition: var(--transition);
 }
@@ -114,8 +140,10 @@ header {
 
 .logo h1 {
     font-size: 1.8rem;
-    color: var(--primary-color);
+    color: var(--white);
     margin: 0;
+    font-weight: 700;
+    letter-spacing: 1px;
 }
 
 .nav-links {
@@ -125,10 +153,11 @@ header {
 }
 
 .nav-links a {
-    color: var(--dark-color);
+    color: var(--white);
     font-weight: 500;
     position: relative;
     padding: 0.5rem 0;
+    transition: var(--transition);
 }
 
 .nav-links a::after {
@@ -138,7 +167,7 @@ header {
     left: 0;
     width: 0;
     height: 2px;
-    background-color: var(--accent-color);
+    background-color: var(--secondary-color);
     transition: var(--transition);
 }
 
@@ -157,20 +186,33 @@ header {
     display: block;
     width: 25px;
     height: 3px;
-    background-color: var(--dark-color);
+    background-color: var(--white);
     transition: var(--transition);
 }
 
 /* Hero Section */
 .hero {
     height: 100vh;
-    background: linear-gradient(rgba(44, 62, 80, 0.8), rgba(44, 62, 80, 0.8)),
+    background: linear-gradient(rgba(12, 43, 34, 0.85), rgba(12, 43, 34, 0.9)),
                 url('../images/hero-bg.jpg') center/cover no-repeat;
     display: flex;
     align-items: center;
     text-align: center;
     color: var(--white);
     padding-top: 80px;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%231e5f4b" fill-opacity="0.1" d="M0,192L48,197.3C96,203,192,213,288,229.3C384,245,480,267,576,250.7C672,235,768,181,864,181.3C960,181,1056,235,1152,234.7C1248,235,1344,181,1392,154.7L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') bottom/100% auto no-repeat;
+    opacity: 0.6;
 }
 
 .hero-content h1 {
