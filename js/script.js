@@ -1,5 +1,63 @@
 // Tab functionality for gallery section
 document.addEventListener('DOMContentLoaded', function() {
+    // Video functionality
+    const videoItems = document.querySelectorAll('.video-item');
+    
+    videoItems.forEach(item => {
+        const video = item.querySelector('video');
+        const playButton = item.querySelector('.play-button');
+        
+        // Play video when clicking the play button or the video container
+        [playButton, item].forEach(el => {
+            el?.addEventListener('click', (e) => {
+                e.stopPropagation();
+                
+                // Pause all other videos
+                document.querySelectorAll('.video-item video').forEach(v => {
+                    if (v !== video) {
+                        v.pause();
+                        v.parentElement.classList.remove('playing');
+                    }
+                });
+                
+                // Toggle play/pause for clicked video
+                if (video.paused) {
+                    video.play();
+                    item.classList.add('playing');
+                } else {
+                    video.pause();
+                    item.classList.remove('playing');
+                }
+            });
+        });
+        
+        // Show controls when video is playing
+        video.addEventListener('play', () => {
+            item.classList.add('playing');
+        });
+        
+        // Hide controls when video is paused
+        video.addEventListener('pause', () => {
+            // Only remove playing class if video ended or manually paused
+            if (video.ended || video.paused) {
+                item.classList.remove('playing');
+            }
+        });
+        
+        // Handle video end
+        video.addEventListener('ended', () => {
+            item.classList.remove('playing');
+            video.currentTime = 0;
+        });
+        
+        // Pause video when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!item.contains(e.target) && !video.paused) {
+                video.pause();
+                item.classList.remove('playing');
+            }
+        });
+    });
     // Tab functionality
     const tabBtns = document.querySelectorAll('.tab-btn');
     const tabContents = document.querySelectorAll('.tab-content');
