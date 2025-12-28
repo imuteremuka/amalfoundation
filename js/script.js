@@ -110,3 +110,224 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+// Lightbox functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightbox-image');
+    const lightboxCaption = document.getElementById('lightbox-caption');
+    const lightboxContent = document.querySelector('.lightbox-content');
+    const closeBtn = document.querySelector('.lightbox-close');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    
+    let currentIndex = 0;
+    let items = [];
+    let currentGallery = '';
+    let isMaximized = false;
+
+    // Get all gallery items (images and videos)
+    function getAllGalleryItems() {
+        const activeTab = document.querySelector('.tab-content.active');
+        if (!activeTab) return [];
+        
+        return Array.from(activeTab.querySelectorAll('.gallery-item:not(.video-item) img, .gallery-item.video-item video'));
+    }
+
+    // Open lightbox
+    function openLightbox(index, galleryId = '') {
+        if (galleryId) {
+            currentGallery = galleryId;
+            const tab = document.getElementById(galleryId);
+            items = Array.from(tab.querySelectorAll('.gallery-item:not(.video-item) img, .gallery-item.video-item video'));
+        }
+        
+        if (items.length === 0) return;
+        
+        currentIndex = index;
+        // Reset maximize state when opening a new item
+        isMaximized = false;
+        document.querySelector('.lightbox-content')?.classList.remove('maximized');
+        updateLightbox();
+        lightbox.classList.add('active');
+        document.body.style.overflow = 'hidden'; // Prevent scrolling when lightbox is open
+    }
+
+    // Update lightbox content
+    function updateLightbox() {
+        if (items.length === 0) return;
+        
+        const item = items[currentIndex];
+        const isVideo = item.tagName.toLowerCase() === 'video';
+        
+        // Clear previous content
+        lightboxContent.innerHTML = '';
+        
+        if (isVideo) {
+            lightboxImg.style.display = 'none';
+            
+            // Create new video element
+            const video = document.createElement('video');
+            video.src = item.querySelector('source').src;
+            video.controls = true;
+            video.autoplay = true;
+            video.style.maxWidth = '100%';
+            video.style.maxHeight = '80vh';
+            video.style.display = 'block';
+            
+            // Create a container for the video
+            const videoContainer = document.createElement('div');
+            videoContainer.style.position = 'relative';
+            videoContainer.style.width = '100%';
+            videoContainer.style.height = '100%';
+            videoContainer.style.display = 'flex';
+            videoContainer.style.justifyContent = 'center';
+            videoContainer.style.alignItems = 'center';
+            
+            videoContainer.appendChild(video);
+
+            // Add a maximize/minimize button for videos
+            const toggleBtn = document.createElement('button');
+            toggleBtn.className = 'lightbox-toggle-size';
+            toggleBtn.innerHTML = '⤢';
+            toggleBtn.title = 'Maximize';
+            toggleBtn.addEventListener('click', (ev) => {
+                ev.stopPropagation();
+                toggleMaximize();
+                if (isMaximized) {
+                    toggleBtn.innerHTML = '⤡';
+                    toggleBtn.title = 'Restore';
+                } else {
+                    toggleBtn.innerHTML = '⤢';
+                    toggleBtn.title = 'Maximize';
+                }
+            });
+            // Reflect current maximize state when showing item
+            if (isMaximized) {
+                lightboxContent.classList.add('maximized');
+                toggleBtn.innerHTML = '⤡';
+                toggleBtn.title = 'Restore';
+            } else {
+                lightboxContent.classList.remove('maximized');
+                toggleBtn.innerHTML = '⤢';
+                toggleBtn.title = 'Maximize';
+            }
+            videoContainer.appendChild(toggleBtn);
+
+            lightboxContent.appendChild(videoContainer);
+        } else {
+            // For images
+            lightboxImg.src = item.src || item.getAttribute('src');
+            lightboxImg.style.display = 'block';
+            lightboxContent.appendChild(lightboxImg);
+        }
+        
+        // Update caption
+        const caption = item.parentElement.querySelector('h3')?.textContent || '';
+        lightboxCaption.textContent = caption;
+        
+        // Update navigation buttons
+        prevBtn.style.display = currentIndex === 0 ? 'none' : 'flex';
+        nextBtn.style.display = currentIndex === items.length - 1 ? 'none' : 'flex';
+    }
+
+    // Close lightbox
+    function closeLightbox() {
+        lightbox.classList.remove('active');
+        document.body.style.overflow = '';
+        // Reset maximize state
+        isMaximized = false;
+        document.querySelector('.lightbox-content')?.classList.remove('maximized');
+
+        // Pause and remove any playing video
+        const videos = document.querySelectorAll('.lightbox-content video');
+        videos.forEach(video => {
+            video.pause();
+            video.remove();
+        });
+        
+        // Clear the lightbox content
+        lightboxContent.innerHTML = '';
+        lightboxContent.appendChild(lightboxImg);
+        lightboxContent.appendChild(lightboxCaption);
+    }
+
+    // Event listeners for gallery items
+    document.querySelectorAll('.gallery-item').forEach((item, index) => {
+        item.addEventListener('click', (e) => {
+            // Don't open lightbox if clicking on play button or video controls
+            if (e.target.closest('.play-button') || e.target.closest('video')) {
+                return;
+            }
+            
+            const galleryId = item.closest('.tab-content')?.id;
+            if (!galleryId) return;
+            
+            // Get all clickable items in the current gallery
+            const items = Array.from(document.querySelectorAll(`#${galleryId} .gallery-item:not(.video-item) img, #${galleryId} .gallery-item.video-item video`));
+            const itemIndex = items.findIndex(img => img === item.querySelector('img, video'));
+            
+            if (itemIndex !== -1) {
+                openLightbox(itemIndex, galleryId);
+            }
+        });
+    });
+
+    // Close lightbox when clicking the overlay or close button
+    lightbox.addEventListener('click', (e) => {
+        if (e.target === lightbox || e.target === closeBtn) {
+            closeLightbox();
+        }
+    });
+
+    // Close with Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeLightbox();
+        } else if (e.key === 'm' && lightbox.classList.contains('active')) {
+            toggleMaximize();
+        } else if (e.key === 'ArrowLeft' && lightbox.classList.contains('active')) {
+            navigate(-1);
+        } else if (e.key === 'ArrowRight' && lightbox.classList.contains('active')) {
+            navigate(1);
+        }
+    });
+
+    // Toggle maximize/restore for the lightbox content (used by button and keyboard)
+    function toggleMaximize() {
+        isMaximized = !isMaximized;
+        if (isMaximized) {
+            document.querySelector('.lightbox-content')?.classList.add('maximized');
+        } else {
+            document.querySelector('.lightbox-content')?.classList.remove('maximized');
+        }
+    }
+
+    // Navigation functions
+    function navigate(direction) {
+        currentIndex += direction;
+        
+        if (currentIndex < 0) {
+            currentIndex = items.length - 1;
+        } else if (currentIndex >= items.length) {
+            currentIndex = 0;
+        }
+        
+        updateLightbox();
+    }
+
+    // Button event listeners
+    prevBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        navigate(-1);
+    });
+
+    nextBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        navigate(1);
+    });
+
+    // Prevent clicks on lightbox content from closing it
+    document.querySelector('.lightbox-content').addEventListener('click', (e) => {
+        e.stopPropagation();
+    });
+});
