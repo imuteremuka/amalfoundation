@@ -1,6 +1,6 @@
 // Tab functionality for gallery section
 document.addEventListener('DOMContentLoaded', function() {
-    // Get all tab buttons and content
+    // Tab functionality
     const tabBtns = document.querySelectorAll('.tab-btn');
     const tabContents = document.querySelectorAll('.tab-content');
 
@@ -40,5 +40,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 hamburger.classList.remove('active');
             }
         });
+    });
+
+    // Update social media links
+    const socialLinks = document.querySelectorAll('.social-links a');
+    socialLinks.forEach(link => {
+        if (link.querySelector('.fa-facebook-f')) {
+            link.href = 'https://www.facebook.com/profile.php?id=61585722420812';
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+        }
     });
 });
