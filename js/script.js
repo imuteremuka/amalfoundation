@@ -331,3 +331,114 @@ document.addEventListener('DOMContentLoaded', function() {
         e.stopPropagation();
     });
 });
+
+// Hero slideshow: cycle background slides with fade, dynamic indicators, and user controls
+(function() {
+    const slides = document.querySelectorAll('.hero-slide');
+    const indicatorsContainer = document.querySelector('.hero-indicators');
+    const prevBtn = document.querySelector('.hero-control.prev');
+    const nextBtn = document.querySelector('.hero-control.next');
+    const playPauseBtn = document.querySelector('.hero-playpause');
+    if (!slides.length || !indicatorsContainer) return;
+
+    let current = 0;
+    const intervalMs = 5000;
+    let timer = null;
+    let isPlaying = true; // default: autoplay
+
+    // Create indicators based on slides
+    const createIndicators = () => {
+        indicatorsContainer.innerHTML = '';
+        slides.forEach((_, idx) => {
+            const btn = document.createElement('button');
+            btn.className = 'indicator' + (idx === 0 ? ' active' : '');
+            btn.setAttribute('role', 'tab');
+            btn.setAttribute('aria-label', `Slide ${idx + 1}`);
+            btn.setAttribute('aria-selected', idx === 0 ? 'true' : 'false');
+            btn.addEventListener('click', () => {
+                show(idx);
+                if (isPlaying) { stop(); start(); }
+            });
+            indicatorsContainer.appendChild(btn);
+        });
+    };
+
+    createIndicators();
+    const indicators = indicatorsContainer.querySelectorAll('.indicator');
+
+    const show = (index) => {
+        slides.forEach((s, i) => s.classList.toggle('active', i === index));
+        indicators.forEach((b, i) => {
+            b.classList.toggle('active', i === index);
+            b.setAttribute('aria-selected', i === index ? 'true' : 'false');
+        });
+        current = index;
+    };
+
+    const next = () => show((current + 1) % slides.length);
+    const prev = () => show((current - 1 + slides.length) % slides.length);
+
+    const start = () => {
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        stop();
+        if (!isPlaying) return;
+        timer = setInterval(next, intervalMs);
+    };
+
+    const stop = () => { if (timer) { clearInterval(timer); timer = null; } };
+
+    const play = () => {
+        isPlaying = true;
+        if (playPauseBtn) {
+            playPauseBtn.setAttribute('aria-pressed', 'false');
+            playPauseBtn.setAttribute('aria-label', 'Pause slideshow');
+            playPauseBtn.innerHTML = '&#10074;&#10074;'; // pause icon
+        }
+        start();
+    };
+
+    const pause = () => {
+        isPlaying = false;
+        stop();
+        if (playPauseBtn) {
+            playPauseBtn.setAttribute('aria-pressed', 'true');
+            playPauseBtn.setAttribute('aria-label', 'Play slideshow');
+            playPauseBtn.innerHTML = '▶'; // play icon
+        }
+    };
+
+    // Hook up control buttons
+    prevBtn?.addEventListener('click', () => {
+        prev();
+        if (isPlaying) { stop(); start(); }
+    });
+
+    nextBtn?.addEventListener('click', () => {
+        next();
+        if (isPlaying) { stop(); start(); }
+    });
+
+    playPauseBtn?.addEventListener('click', () => {
+        if (isPlaying) {
+            pause();
+        } else {
+            play();
+        }
+    });
+
+    const heroEl = document.querySelector('.hero');
+
+    // Keyboard navigation for accessibility
+    heroEl?.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') { prev(); if (isPlaying) { stop(); start(); } }
+        if (e.key === 'ArrowRight') { next(); if (isPlaying) { stop(); start(); } }
+        if (e.key === ' ' || e.key === 'Spacebar') { // space toggles play/pause
+            e.preventDefault();
+            if (isPlaying) { pause(); } else { play(); }
+        }
+    });
+
+    // Ensure initial state and start the loop
+    show(0);
+    play();
+})();
