@@ -1,5 +1,115 @@
 // Tab functionality for gallery section
 document.addEventListener('DOMContentLoaded', function() {
+    // Contact Form with reCAPTCHA
+    const contactForm = document.getElementById('contactForm');
+    if (contactForm) {
+        // Form validation
+        function validateForm(formData) {
+            // Honeypot check
+            if (formData.get('website')) {
+                return { valid: false, message: 'Spam detected' };
+            }
+            
+            const name = formData.get('name')?.trim() || '';
+            const email = formData.get('email')?.trim() || '';
+            const subject = formData.get('subject')?.trim() || '';
+            const message = formData.get('message')?.trim() || '';
+            
+            if (!name || !email || !subject || !message) {
+                return { valid: false, message: 'All fields are required' };
+            }
+            
+            if (name.length < 2 || name.length > 50) {
+                return { valid: false, message: 'Name must be between 2-50 characters' };
+            }
+            
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                return { valid: false, message: 'Please enter a valid email address' };
+            }
+            
+            if (message.length < 10) {
+                return { valid: false, message: 'Message is too short' };
+            }
+            
+            return { valid: true };
+        }
+
+        // Handle form submission
+        contactForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitButton = contactForm.querySelector('button[type="submit"]');
+            const btnText = submitButton.querySelector('.btn-text');
+            const btnLoading = submitButton.querySelector('.btn-loading');
+            const statusElement = document.getElementById('form-status');
+            
+            // Show loading state
+            submitButton.disabled = true;
+            btnText.style.display = 'none';
+            btnLoading.style.display = 'inline-block';
+            statusElement.style.display = 'none';
+            
+            try {
+                // Validate form
+                const formData = new FormData(contactForm);
+                const validation = validateForm(formData);
+                
+                if (!validation.valid) {
+                    throw new Error(validation.message);
+                }
+                
+                // Get reCAPTCHA token
+                const token = await new Promise((resolve) => {
+                    grecaptcha.ready(() => {
+                        grecaptcha.execute('6Le-HTosAAAAAA_9Ttk4hJSMp06_lqPX8Ncb4bSh', { action: 'submit' })
+                            .then(resolve);
+                    });
+                });
+                
+                // Add reCAPTCHA token to form data
+                formData.append('recaptcha_response', token);
+                
+                // Submit form
+                const response = await fetch(contactForm.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    // Success
+                    statusElement.textContent = 'Thank you for your message! We will get back to you soon.';
+                    statusElement.className = 'form-status success';
+                    contactForm.reset();
+                } else {
+                    const error = await response.json();
+                    throw new Error(error.message || 'Something went wrong. Please try again.');
+                }
+            } catch (error) {
+                console.error('Form submission error:', error);
+                statusElement.textContent = error.message || 'There was a problem sending your message. Please try again later.';
+                statusElement.className = 'form-status error';
+            } finally {
+                // Reset button state
+                submitButton.disabled = false;
+                btnText.style.display = 'inline-block';
+                btnLoading.style.display = 'none';
+                statusElement.style.display = 'block';
+                
+                // Hide status message after 5 seconds
+                setTimeout(() => {
+                    statusElement.style.opacity = '0';
+                    setTimeout(() => {
+                        statusElement.style.display = 'none';
+                        statusElement.style.opacity = '1';
+                    }, 300);
+                }, 5000);
+            }
+        });
+    }
+    
     // Video functionality
     const videoItems = document.querySelectorAll('.video-item');
     

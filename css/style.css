@@ -712,17 +712,118 @@ section {
     transform: translateY(20px);
     transition: var(--transition);
 }
-
 .gallery-item:hover .gallery-overlay h3 {
     transform: translateY(0);
 }
 
+/* reCAPTCHA badge styling */
+.grecaptcha-badge { 
+    visibility: hidden; /* Hide the badge as it's not needed with v3 */
+}
+
+/* Form status messages */
+.form-status {
+    margin: 15px 0;
+    padding: 12px 15px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    display: none;
+}
+
+.form-status.success {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid #a5d6a7;
+    display: block;
+}
+
+.form-status.error {
+    background-color: #ffebee;
+    color: #c62828;
+    border: 1px solid #ef9a9a;
+    display: block;
+}
+
+/* Send Message Button */
+.btn {
+    position: relative;
+    overflow: hidden;
+    width: auto;
+    min-width: 150px;
+    padding: 8px 20px;
+    background-color: var(--primary-color);
+    color: white;
+    border: 1px solid var(--primary-color);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+}
+
+.btn:hover {
+    background-color: var(--secondary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+.btn .btn-text {
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
+.btn .btn-loading {
+    display: none;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+}
+
+.btn[disabled] {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+.btn[disabled] .btn-text {
+    visibility: hidden;
+}
+
+.btn[disabled] .btn-loading {
+    display: inline-block;
+}
+
+/* Honeypot field */
+.honeypot {
+    position: absolute;
+    left: -5000px;
+}
+
 /* Contact Section */
+.contact {
+    background-color: #f9f9f9;
+    padding: 100px 0;
+    position: relative;
+    overflow: hidden;
+}
+
 .contact-content {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 3rem;
-    margin-top: 3rem;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 50px;
+    margin-top: 50px;
 }
 
 .contact-info {
