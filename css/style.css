@@ -838,9 +838,23 @@ section {
     gap: 1rem;
 }
 
+.contact-item h3 {
+    color: var(--primary-color);
+    margin-bottom: 0.3rem;
+    font-size: 1.1rem;
+}
+
+.contact-item p {
+        color: var(--dark-color);
+    margin: 0;
+    line-height: 1.5;
+    font-weight: 500;
+}
+
 .contact-item i {
+    color: var(--secondary-color);
     font-size: 1.5rem;
-    color: var(--accent-color);
+    min-width: 30px;
     margin-top: 0.3rem;
 }
 
@@ -926,16 +940,15 @@ footer {
     margin-bottom: 1.5rem;
     line-height: 1.7;
     color: rgba(255, 255, 255, 0.8);
-}
+        text-align: justify;
+        text-justify: inter-word;
+        text-align-last: left;
+        align-items: center;
+        margin-bottom: 0.8rem;
+        color: rgba(255, 255, 255, 0.9);
+    }
 
-.contact-info p {
-    display: flex;
-    align-items: center;
-    margin-bottom: 0.8rem;
-    color: rgba(255, 255, 255, 0.9);
-}
-
-.contact-info i {
+    footer .contact-info i {
     margin-right: 10px;
     color: var(--secondary-color);
     width: 20px;
